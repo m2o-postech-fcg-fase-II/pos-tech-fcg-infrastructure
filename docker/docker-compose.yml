@@ -106,13 +106,13 @@ services:
   # ============================================================================  
   userapi:
     build:
-      context: ./pos-tech-fcg-user-api
-      dockerfile: src/FCG.UserAPI.Api/Dockerfile
+      context: ../../pos-tech-fcg-user-api/src
+      dockerfile: FCG.UserAPI.Api/Dockerfile
     container_name: fcg-userapi
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_URLS: http://+:8081
       ConnectionStrings__DefaultConnection: Host=postgres-user;Database=fcg_user_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
@@ -125,7 +125,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${USERAPI_PORT:-8080}:8080"
+      - "${USERAPI_PORT:-8081}:8081"
     depends_on:
       postgres-user:
         condition: service_healthy
@@ -134,7 +134,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -145,13 +145,13 @@ services:
   # ============================================================================  
   catalogapi:
     build:
-      context: ./pos-tech-fcg-catalog-api
-      dockerfile: src/FCG.Catalog.API/Dockerfile
+      context: ../../pos-tech-fcg-catalog-api/src
+      dockerfile: FCG.Catalog.API/Dockerfile
     container_name: fcg-catalogapi
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8082
+      ASPNETCORE_URLS: http://+:8083
       ConnectionStrings__DefaultConnection: Host=postgres-catalog;Database=fcg_catalog_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
@@ -164,7 +164,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${CATALOGAPI_PORT:-8082}:8082"
+      - "${CATALOGAPI_PORT:-8083}:8083"
     depends_on:
       postgres-catalog:
         condition: service_healthy
@@ -173,7 +173,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8082/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -184,13 +184,13 @@ services:
   # ============================================================================  
   paymentapi:
     build:
-      context: ./pos-tech-fcg-payment-api
-      dockerfile: src/FCG.Payment.API/Dockerfile
+      context: ../../pos-tech-fcg-payment-api/src
+      dockerfile: FCG.Payment.API/Dockerfile
     container_name: fcg-paymentapi
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8084
+      ASPNETCORE_URLS: http://+:8085
       ConnectionStrings__DefaultConnection: Host=postgres-payment;Database=${DB_PAYMENT_NAME:-fcg_payment_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
@@ -203,7 +203,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${PAYMENTAPI_PORT:-8084}:8084"
+      - "${PAYMENTAPI_PORT:-8085}:8085"
     depends_on:
       postgres-payment:
         condition: service_healthy
@@ -212,7 +212,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8084/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8085/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -223,13 +223,13 @@ services:
   # ============================================================================  
   notificationapi:
     build:
-      context: ./pos-tech-fcg-notification-api
-      dockerfile: src/FCG.Notification.API/Dockerfile
-    container_name: fcg-paymentapi
+      context: ../../pos-tech-fcg-notification-api/src
+      dockerfile: FCG.Notification.API/Dockerfile
+    container_name: fcg-notificationapi
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8086
+      ASPNETCORE_URLS: http://+:8087
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__Username: ${RABBITMQ_USER:-guest}
@@ -241,14 +241,14 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${PAYMENTAPI_PORT:-8086}:8086"
+      - "${NOTIFICATION_PORT:-8087}:8087"
     depends_on:
       rabbitmq:
         condition: service_healthy
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8086/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8087/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
