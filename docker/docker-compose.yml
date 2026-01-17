@@ -1,5 +1,5 @@
 # Docker compose para microsserviços com PostgreSQL e RabbitMQ
-name: FCG-Fase-2-Microsservicos
+name: FCG-Fase-2
 services:
   # ============================================================================  
   # DATABASE - PostgreSQL User
@@ -108,7 +108,7 @@ services:
     build:
       context: ../../pos-tech-fcg-user-api/src
       dockerfile: FCG.UserAPI.Api/Dockerfile
-    container_name: fcg-userapi
+    container_name: fcg-user-api
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
@@ -147,7 +147,7 @@ services:
     build:
       context: ../../pos-tech-fcg-catalog-api/src
       dockerfile: FCG.Catalog.API/Dockerfile
-    container_name: fcg-catalogapi
+    container_name: fcg-catalog-api
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
@@ -186,7 +186,7 @@ services:
     build:
       context: ../../pos-tech-fcg-payment-api/src
       dockerfile: FCG.Payment.API/Dockerfile
-    container_name: fcg-paymentapi
+    container_name: fcg-payment-api
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
@@ -225,7 +225,7 @@ services:
     build:
       context: ../../pos-tech-fcg-notification-api/src
       dockerfile: FCG.Notification.API/Dockerfile
-    container_name: fcg-notificationapi
+    container_name: fcg-notification-api
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
