@@ -1,0 +1,311 @@
+# Docker compose para microsserviços com PostgreSQL e RabbitMQ
+name: FCG-Fase-2-Microsservicos
+services:
+  # ============================================================================  
+  # DATABASE - PostgreSQL User
+  # ============================================================================  
+  postgres-user:
+    image: postgres:16-alpine
+    container_name: fcg-user-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: fcg_user_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${DB_USER_PORT:-5432}:5432"
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ============================================================================  
+  # DATABASE - PostgreSQL Catalog
+  # ============================================================================  
+  postgres-catalog:
+    image: postgres:16-alpine
+    container_name: fcg-catalog-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: fcg_catalog_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${DB_CATALOG_PORT:-5433}:5432"
+    volumes:
+      - postgres_catalog_data:/var/lib/postgresql/data
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ============================================================================  
+  # DATABASE - PostgreSQL Payment
+  # ============================================================================  
+  postgres-payment:
+    image: postgres:16-alpine
+    container_name: fcg-payment-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: ${DB_PAYMENT_NAME:-fcg_payment_db}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${DB_PAYMENT_PORT:-5434}:5432"
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ============================================================================  
+  # MESSAGE BROKER - RabbitMQ (Compartilhado)
+  # ============================================================================  
+  rabbitmq:
+    image: rabbitmq:4.2-management-alpine
+    container_name: fcg-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"          # AMQP
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"   # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================================  
+  # API - User API
+  # ============================================================================  
+  userapi:
+    build:
+      context: ./pos-tech-fcg-user-api
+      dockerfile: src/FCG.UserAPI.Api/Dockerfile
+    container_name: fcg-userapi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres-user;Database=fcg_user_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__Username: ${RABBITMQ_USER:-guest}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:-guest}
+      Jwt__Issuer: ${JWT_ISSUER:-FCG.API}
+      Jwt__Audience: ${JWT_AUDIENCE:-FCG.WebApp}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+    secrets:
+      - jwt_secret
+    ports:
+      - "${USERAPI_PORT:-8080}:8080"
+    depends_on:
+      postgres-user:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ============================================================================  
+  # API - Catalog API
+  # ============================================================================  
+  catalogapi:
+    build:
+      context: ./pos-tech-fcg-catalog-api
+      dockerfile: src/FCG.Catalog.API/Dockerfile
+    container_name: fcg-catalogapi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8082
+      ConnectionStrings__DefaultConnection: Host=postgres-catalog;Database=fcg_catalog_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__Username: ${RABBITMQ_USER:-guest}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:-guest}
+      Jwt__Issuer: ${JWT_ISSUER:-FCG.API}
+      Jwt__Audience: ${JWT_AUDIENCE:-FCG.WebApp}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+    secrets:
+      - jwt_secret
+    ports:
+      - "${CATALOGAPI_PORT:-8082}:8082"
+    depends_on:
+      postgres-catalog:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ============================================================================  
+  # API - Payment API
+  # ============================================================================  
+  paymentapi:
+    build:
+      context: ./pos-tech-fcg-payment-api
+      dockerfile: src/FCG.Payment.API/Dockerfile
+    container_name: fcg-paymentapi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8084
+      ConnectionStrings__DefaultConnection: Host=postgres-payment;Database=${DB_PAYMENT_NAME:-fcg_payment_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__Username: ${RABBITMQ_USER:-guest}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:-guest}
+      Jwt__Issuer: ${JWT_ISSUER:-FCG.API}
+      Jwt__Audience: ${JWT_AUDIENCE:-FCG.WebApp}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+    secrets:
+      - jwt_secret
+    ports:
+      - "${PAYMENTAPI_PORT:-8084}:8084"
+    depends_on:
+      postgres-payment:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8084/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ============================================================================  
+  # API - Payment API
+  # ============================================================================  
+  notificationapi:
+    build:
+      context: ./pos-tech-fcg-notification-api
+      dockerfile: src/FCG.Notification.API/Dockerfile
+    container_name: fcg-paymentapi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8086
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__Username: ${RABBITMQ_USER:-guest}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:-guest}
+      Jwt__Issuer: ${JWT_ISSUER:-FCG.API}
+      Jwt__Audience: ${JWT_AUDIENCE:-FCG.WebApp}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+    secrets:
+      - jwt_secret
+    ports:
+      - "${PAYMENTAPI_PORT:-8086}:8086"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fcg-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8086/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ============================================================================  
+  # TOOLS - pgAdmin (LOCAL DEV)
+  # ============================================================================  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: fcg-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@fcg.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+      PGADMIN_CONFIG_COOKIE_DEFAULT_SECURE: "False"
+      PGADMIN_CONFIG_COOKIE_SAMESITE: "'Lax'"
+      PGADMIN_CONFIG_SESSION_EXPIRATION_TIME: 1800
+      SCRIPT_NAME: /pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - postgres-user
+      - postgres-catalog
+      - postgres-payment
+    networks:
+      - fcg-network
+
+# ============================================================================  
+# VOLUMES
+# ============================================================================  
+volumes:
+  postgres_user_data:
+    driver: local
+  postgres_catalog_data:
+    driver: local
+  postgres_payment_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# ============================================================================  
+# NETWORKS
+# ============================================================================  
+networks:
+  fcg-network:
+    driver: bridge
+
+# ============================================================================  
+# SECRETS
+# ============================================================================  
+secrets:
+  jwt_secret:
+    file: ./secrets/jwt_secret
