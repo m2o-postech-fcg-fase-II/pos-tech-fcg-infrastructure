@@ -1,0 +1,446 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-user
+spec:
+  selector:
+    matchLabels:
+      app: postgres-user
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-user
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_PASSWORD
+            - name: POSTGRES_DB
+              value: fcg_user_db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pg-user-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-catalog
+spec:
+  selector:
+    matchLabels:
+      app: postgres-catalog
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-catalog
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_PASSWORD
+            - name: POSTGRES_DB
+              value: fcg_catalog_db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pg-catalog-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-payment
+spec:
+  selector:
+    matchLabels:
+      app: postgres-payment
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-payment
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_PASSWORD
+            - name: POSTGRES_DB
+              value: fcg_payment_db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pg-payment-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:4.2-management-alpine
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+          readinessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
+---
+# Users API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-api
+  template:
+    metadata:
+      labels:
+        app: users-api
+    spec:
+      containers:
+        - name: users-api
+          image: fcg-users-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: USERS_ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: USERS_ASPNETCORE_URLS
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: USERS_CONNECTIONSTRING
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_HOST
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PORT
+            - name: RabbitMq__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_USERNAME
+            - name: RabbitMq__Password
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PASSWORD
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_AUDIENCE
+            - name: Jwt__ExpiryMinutes
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_EXPIRY_MINUTES
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+# Catalog API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-api
+  template:
+    metadata:
+      labels:
+        app: catalog-api
+    spec:
+      containers:
+        - name: catalog-api
+          image: fcg-catalog-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: CATALOG_ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: CATALOG_ASPNETCORE_URLS
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: CATALOG_CONNECTIONSTRING
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_HOST
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PORT
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+# Payment API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payments-api
+  template:
+    metadata:
+      labels:
+        app: payments-api
+    spec:
+      containers:
+        - name: payments-api
+          image: fcg-payments-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8085
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: PAYMENT_ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: PAYMENT_ASPNETCORE_URLS
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: PAYMENT_CONNECTIONSTRING
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_HOST
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8085
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+# Notification API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications-api
+  template:
+    metadata:
+      labels:
+        app: notifications-api
+    spec:
+      containers:
+        - name: notifications-api
+          image: fcg-notification-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8087
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: NOTIF_ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: NOTIF_ASPNETCORE_URLS
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_HOST
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8087
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+# PgAdmin (dev)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: "admin@fcg.com"
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: "admin123"
+          volumeMounts:
+            - name: pgadmin-data
+              mountPath: /var/lib/pgadmin
+      volumes:
+        - name: pgadmin-data
+          persistentVolumeClaim:
+            claimName: pgadmin-pvc

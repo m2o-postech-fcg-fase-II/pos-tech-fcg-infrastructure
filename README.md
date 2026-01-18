@@ -1,59 +1,70 @@
-# FCG Platform - FIAP Cloud Games - Tech Challenge - Fase II - Grupo 39
+## FIAP - Arquitetura em Sistemas .NET
+- Tech Challenge - FIAP Cloud Games - Fase II - Grupo 57
+    - Marcelo Mendes de Oliveira - __RM: 367563__
+    - Eduardo Martins Oliveira - __RM: 368703__
+---
+### Sobre:
+Este repositório é parte integrante da proposta da **FIAP - Pós-Tech em Arquitetura de Sistemas .NET _com foco nos princípios de Domain-Driven Design  (DDD)._ - Fase II**.
+O propósito desta fase é refatorar a solução da **fase I** - refatorar o monolito da Plataforma **Fiap Cloud Games - FCG** e "quebrar" em microsserviços orquestrados via k8s.
 
-## Visão Geral
-Este repositório contém o projeto de orquestração desenvolvido para o Tech Challenge - Parte 2 do curso  **Arquitetura de Sistemas .NET** com foco nos princípios de Domain-Driven Design (DDD).
+---
+#### Visão Geral
+ Este repositório tem como objetivo centralizar as configurações referentes ao _docker-compose_ e _orquestração do Kubernates_.
 
-O objetivo desta fase é refatorar a aplicação monolítica da Fase I do projeto em uma arquitetura de microsserviços orientada a eventos.  O projeto da Fase I encontra-se no repositorio: 
-```bash
-https://github.com/gmerendi/fiap-cloud-games
-``` 
-Quatro microsserviços independentes foram desenvolvidos: Usuários, Catálogo, Pagamentos e Notificações, além desse repositório para orquestração.  Os repositórios dos microsserviços são:
-USER.API
-```bash
-https://github.com/gmerendi/fiap-cloud-games-users-api
+Projeto da fase I a ser refatorado:
 ```
-CATALOG.API
-```bash
-https://github.com/gmerendi/fiap-cloud-games-catalog-api
+https://github.com/fiap-tech-challenge-fgc/fiap-cloud-game
 ```
-NOTIFICATIONS.API
-```bash
-https://github.com/gmerendi/fiap-cloud-games-notifications-api
+
+## Fase II
+A proposta é refatorar o monolito da **Fase I** em 4 microsservicos distintos, sendo eles:
+- USER.API
 ```
-PAYMENTS.API
-```bash
-https://github.com/gmerendi/fiap-cloud-games-payments-api
+https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-user-api
 ```
+- CATALOG.API
+```
+https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-catalog-api
+```
+- NOTIFICATIONS.API
+```
+https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-notification-api
+```
+- PAYMENTS.API
+```
+https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-payment-api
+```
+
+> Para compartilhar determinadas entidades que seriam reutilizadas e algumas regras de negócio foi tambem foi criado um repositório contendo um projeto nuget.
+> - FCG.Generics
+> ```
+> https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-generics
+>```
+> Nuget: [FCG.10NETT](https://www.nuget.org/packages/FCG.10NETT)
+
+
 As instruções para rodar o projeto contidas no item Setup deste documento, referem-se somente ao projeto inteiro, contendo todos os microsserviços.  Caso queira rodar cada microsserviço individualmente, as instruções estão no repositórios de cada microsserviço.
 
 ## Docker
-Esse projeto foi desenvolvido para utilização com Conteineres. (Docker).  O projeto de orquestração considera o ambiente de Produção. As imagens oficiais utilizadas são :<br>
+Esse projeto foi desenvolvido para utilização com contêineres. (Docker).  O projeto de orquestração considera o ambiente de Produção. As imagens oficiais utilizadas são :<br>
   - APIs: mcr.microsoft.com/dotnet/sdk:8.0 (Prod)
-  - DBs:  postgres:15-alpine
-  - RabbitMq: rabbitmq:4.1.6-management-alpine
+  - DBs:  postgres:16-alpine
+  - PgAdmin: dpage/pgadmin4:latest
+  - RabbitMq: rabbitmq:4.2-management-alpine
 <br>
   
-O projeto quando iniciado pelo comando docker-compose up local, cria os seguintes conteineres:
-- **fcg-users-api**          -  USERS.API com os endpoints para usuarios em.NET 8.0
-- **fcg-users-db**           -  Base de dados de cadastro de usuarios PostgreSql
-- **fcg-catalog-api**        -  CATALOG.API com os endpoints para catalogo de jogos em.NET 8.0
-- **fcg-catalog-db**         -  Base de dados de catalogo de jogos em PostgreSql
-- **fcg-notifications-api**  -  NOTIFICATIONS.API com os endpoints para um sistema de simulaçao de e-mail de notificação em.NET 8.0
-- **fcg-payments-api**       -  PAYMENTS.API com os endpoints para simulação de pagamento de jogos em.NET 8.0
-- **fcg-payments-db**        -  Base de dados de pagamento de jogos PostgreSql
-- **fcg-rabbitmq**           -  RabbitMQ
-- **fcg-ready**              - Somente para verificar se todos os conteineres subiram. Este conteiner mostra-se sempre parado no docker desktop
+O projeto quando iniciado pelo comando pelo docker-compose up cria os seguintes contêineres:
+  - **FCG-Fase-2**             - Agrupador de todos os contêineres
+  - **fcg-users-db**           - Base de dados de cadastro de usuários PostgreSql
+  - **fcg-users-api**          - USER.API com os endpoints para usuários em.NET 8.0
+  - **fcg-catalog-db**         - Base de dados de catalogo de jogos em PostgreSql
+  - **fcg-catalog-api**        - CATALOG.API com os endpoints para catalogo de jogos em.NET 8.0
+  - **fcg-payments-db**        - Base de dados de pagamento de jogos PostgreSql
+  - **fcg-payments-api**       - PAYMENTS.API com os endpoints para simulação de pagamento de jogos em.NET 8.0
+  - **fcg-notifications-api**  - NOTIFICATIONS.API com os endpoints para um sistema de simulação de e-mail de notificação em.NET 8.0
+  - **fcg-pgadmin**            - PgAdmin
+  - **fcg-rabbitmq**           - RabbitMQ
 
-### Imagens Docker 
-Quando iniciado pelo docker-compose up --build:
-- **fcgusersapi:v2**         - Gerada pelo Dockerfile do repositório USERS.API
-- **fcgusersdb:v2**          - Gerada pelo Dockerfile desse repositório de orquestração.
-- **fcgcatalogapi:v2**       - Gerada pelo Dockerfile do repositório CATALOG.API
-- **fcgusersdb:v2**          - Gerada pelo Dockerfile desse repositório de orquestração.
-- **fcgnotificationsapi:v2** - Gerada pelo Dockerfile do repositório NOTIFICATIONS.API
-- **fcgpaymentsapi:v2**      - Gerada pelo Dockerfile do repositório PAYMENTS.API
-- **fcgpaymentsdb:v2**       - Gerada pelo Dockerfile desse repositório de orquestração.
-- **fcgrabbitmq:v2**         - Gerada pelo Dockerfile desse repositório de orquestração.
 
 ## Kubernetes
 Os arquivos para deployment do projeto estão na pasta root/k8s:
@@ -74,8 +85,9 @@ A plataforma FCG é composta pelos seguintes microsserviços independentes:
 | Catalog.API | Catálogo de jogos e início do fluxo de compra |
 | Payments.API | Processamento de pagamentos (simulado) |
 | Notifications.API | Envio de notificações (simulado via logs) |
+| FCG.Generics (FCG.10NETT) | Nugget contendo entidades de reuso |
 
-A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando **mensageria** (RabbitMQ + MAssTransit), seguindo os princípios de **arquitetura orientada a eventos**.
+A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando **mensageria** (RabbitMQ + MassTransit), seguindo os princípios de **arquitetura orientada a eventos**.
 
 
 ## Pré-requisitos
@@ -89,32 +101,41 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
   * C#
 * **Framework:**
   * .Net Core 8
+  * EF Core 8
+  * Identity Framework Core (UserAPI)
   * Swagger
   * LinQ
-  * GrapQl
-  * EFS Core 8
   * JWT Bearer
-  * Dapper
   * Docker
   * Kubernetes
  
 ### Setup
-1. Clone este repositório, bem como os repositórios dos microsserviços utilizando Visual Studio.  O Branch é o Develop para todos.  Utilize a hierarquia de pastas abaixo, mantendo os nomes.  Caso os nomes sejam substituidos, o arquivo docker-compose também deverá ser modificado.
-repo/<br>
-├── fiap-cloud-games-catalog-api/<br>
-│   └── Clone do repositório: https://github.com/gmerendi/fiap-cloud-games-catalog-api<br>
-│<br>
-├── fiap-cloud-games-infrastructure/<br>
-│   └── Este repositório.<br>
-│<br>
-├── fiap-cloud-games-notifications-api/<br>
-│   └── Clone do repositório: https://github.com/gmerendi/fiap-cloud-games-notifications-api<br>
-│<br>
-├── fiap-cloud-games-payments-api/<br>
-│   └── Clone do repositório: https://github.com/gmerendi/fiap-cloud-games-payments-api<br>
-│<br>
-└── fiap-cloud-games-users-api/<br>
-    └── Clone do repositório: https://github.com/gmerendi/fiap-cloud-games-users-api<br>
+1. Clone este repositório, bem como os demais repositórios dos microsserviços. 
+2. Mantenha os nomes originais dos repositórios ao cloná-los (caso mude é necessário rever o docker-compose).
+3. Branch é o Develop para todos. 
+4. Mantenha a estrutura de pastas conforme o exemplo abaixo:
+
+```repo/<br>
+├── fiap-cloud-games-infrastructure/
+│   └── Este repositório.
+│
+├── pos-tech-fcg-user-api/
+│   └── ```bash git clone https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-user-api.git```
+│
+├── pos-tech-fcg-catalog-api/
+│   └── ```bash git clone https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-catalog-api.git```
+│
+├── pos-tech-fcg-payment-api/
+│   └── ```bash git clone https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-payment-api.git```
+│
+├── pos-tech-fcg-notification-api/
+│   └── ```https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-notification-api.git```
+│
+└── pos-tech-fcg-generics/
+    └── ```https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-generics```
+```
+
+#### Edição Pendente:
 
 <img width="530" height="190" alt="image" src="https://github.com/user-attachments/assets/5bfaf29f-58a0-4334-a5f4-a7ac8c326ea1" />
 
@@ -131,7 +152,6 @@ repo/<br>
   <img width="1269" height="633" alt="image" src="https://github.com/user-attachments/assets/b19fb09c-6513-42d7-83de-389b1ad93cce" /><br>
   <img width="1581" height="214" alt="image" src="https://github.com/user-attachments/assets/a37f1173-a656-4581-b570-939ac99d3ac2" /><br>
 
-
   
 2.2 **Para rodar o projeto com kubernetes**<br>
 2.2.1  Procure pelas imagens docker v2 no docker desktop.  Caso as imagens não existam, clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal" e rode o seguinte comando para gerá-las:<br>
@@ -145,11 +165,3 @@ Caso as imagens já existam, inicie o projeto clicando com o botão esquerdo do 
   ```
 Aguarde até que todos os pods estejam iniciados:<br>
 <img width="1247" height="489" alt="image" src="https://github.com/user-attachments/assets/6cedceff-8a71-4efc-b814-6d8cd010c5a8" />
-
-
-
-
-
-
-
-
