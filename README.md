@@ -43,7 +43,8 @@ https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-payment-api
 > Nuget: [FCG.10NETT](https://www.nuget.org/packages/FCG.10NETT)
 
 
-As instruções para rodar o projeto contidas no item Setup deste documento, referem-se somente ao projeto inteiro, contendo todos os microsserviços.  Caso queira rodar cada microsserviço individualmente, as instruções estão no repositórios de cada microsserviço.
+As instruções para rodar o projeto contidas no item Setup deste documento, referem-se somente ao projeto inteiro, contendo todos os microsserviços.  
+Caso queira rodar cada microsserviço individualmente, as instruções estão no repositórios de cada microsserviço.
 
 ## Docker
 Esse projeto foi desenvolvido para utilização com contêineres. (Docker).  O projeto de orquestração considera o ambiente de Produção. As imagens oficiais utilizadas são :<br>
@@ -113,7 +114,11 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
 1. Clone este repositório, bem como os demais repositórios dos microsserviços. 
 2. Mantenha os nomes originais dos repositórios ao cloná-los (caso mude é necessário rever o docker-compose).
 3. Branch é o Develop para todos. 
-4. Mantenha a estrutura de pastas conforme o exemplo abaixo:
+4.  Configurar `.env` e `secrets`
+    5.1. Acesse a pasta `Helps` e siga as instruções dos arquivos
+        - `secrets.help.md`
+        - `env.example` 
+5. Mantenha a estrutura de pastas conforme o exemplo abaixo:
 
 ```repo/<br>
 ├── fiap-cloud-games-infrastructure/
@@ -135,30 +140,68 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
     └── ```https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-generics```
 ```
 
-#### Edição Pendente:
+5.1 Visão do diretório dos repositórios:
 
-<img width="530" height="190" alt="image" src="https://github.com/user-attachments/assets/5bfaf29f-58a0-4334-a5f4-a7ac8c326ea1" />
+<img width="627" 
+    height="215" 
+    alt="visão do diretório dos repositórios" 
+    title="Visão do diretório dos repositórios dos microsserviços" 
+    aria-label="imagem da visão do diretório dos repositórios dos microsserviços" 
+    src="https://github.com/user-attachments/assets/766b2acf-aca0-4353-a5ee-099c11ff10cd" />
+    
+5.2 Executar via Docker-Compose
+5.2.1 Acesse o diretório `pos-tech-fcg-infrastructure`.<br>
+5.2.2 Clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal"<br>
 
-2. Acesse a pasta contendo este repositório de orquestração.<br>
-2.1 **Para rodar o projeto com docker-compose**<br>
-   2.1.1 Clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal"<br>
-   <img width="328" height="415" alt="image" src="https://github.com/user-attachments/assets/ed6fa237-4a9e-413d-a21c-57a8d4d58941" /><br><br>
+   <img width="809" 
+       height="532" 
+       alt="menu de contexto" 
+       title="menu de contexto do click direito do mouse"
+       aria-label="menu de contexto do click direito do mouse"       
+       src="https://github.com/user-attachments/assets/d95c5bbf-29cd-43a3-8fb4-87ce87bf5f22" />
 
-  2.1.2 Digite no powershell aberto o comando:
-  ```bash
-  docker-compose up --build
-  ```
-  2.1.3 Aguarde até que os conteineres tenham iniciado. O container fcg-ready não permanece iniciado.  Ele é utilizado apenas para prover uma mensagem indicando que o ambiente está pronto no console.<br>
-  <img width="1269" height="633" alt="image" src="https://github.com/user-attachments/assets/b19fb09c-6513-42d7-83de-389b1ad93cce" /><br>
-  <img width="1581" height="214" alt="image" src="https://github.com/user-attachments/assets/a37f1173-a656-4581-b570-939ac99d3ac2" /><br>
 
+5.2.3 Na janela do terminal digite o comando:
+
+5.2.3.1: Monitorar no próprio console.
+    Digite no console o seguinte comando:
+    ```bash
+    docker-compose up --build
+    ```
+
+   Se tudo estiver correto irá mostrar imagems semelhantes a estas: 
+   
+   <img width="1393" 
+       height="498" 
+       title="Imagem do docker compilando e iniciando os containers dos microsserviços"
+       aria-label="Imagem do docker desktop com os containers dos microsserviços"
+       alt="Docker Desktop com os microserviços iniciados" 
+       src="https://github.com/user-attachments/assets/3d98649e-562e-4b82-be4c-c74151b09787" />
+
+   
+   <img width="1422" 
+       height="922" 
+       title="Imagem do teminal executando o docker exibindo os logs dos microsserviços"
+       aria-label="Imagem do teminal executando o docker exibindo os logs dos microsserviços"
+       alt="Imagem do teminal executando o docker exibindo os logs dos microsserviços" 
+       src="https://github.com/user-attachments/assets/0fdc04e4-043a-402a-a647-a7450640bf1d" />       
+   
+5.2.3.2 - Visão - Docker Desktop
+    <img width="2165" 
+        height="713" 
+        title="Imagem do docker descktop com os containers dos microsserviços"
+        aria-label="Imagem do docker desktop com os containers dos microsserviços"
+        alt="Docker Desktop com os microserviços iniciados" 
+        src="https://github.com/user-attachments/assets/176cbcde-c0e8-43e8-ba64-388464c0ede2" />
+
+5.2.3.3 - Não mostrar log no console:
+   ```bash
+   docker-compose up -d --build
+   ```  
+
+### ⬇️⬇️⬇️ ainda não construido.
   
-2.2 **Para rodar o projeto com kubernetes**<br>
-2.2.1  Procure pelas imagens docker v2 no docker desktop.  Caso as imagens não existam, clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal" e rode o seguinte comando para gerá-las:<br>
-```bash
-  docker-compose build
-  ```
-<img width="1296" height="573" alt="image" src="https://github.com/user-attachments/assets/a5abf4a5-ebb2-4e48-b952-dbc9438bef2b" /><br>
+6 **Para rodar o projeto com kubernetes**<br>
 Caso as imagens já existam, inicie o projeto clicando com o botão esquerdo do mouse sobre a pasta raiz "fiap-cloud-games-infrastructure" e selecione a opção "Open in Terminal" e rode o seguinte comando:<br>
 ```bash
   kubectl apply -f k8s/
