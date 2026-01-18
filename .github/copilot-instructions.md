@@ -58,3 +58,5 @@ O README principal deve conter:
 - Como verificar pods:
 	- kubectl get pods
 
+- O README deve ser em Markdown bruto, em um único arquivo, sem HTML, sem tags e sem imagens embutidas; sempre gerar documentação em Markdown puro para este repositório.
+

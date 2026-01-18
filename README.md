@@ -55,13 +55,13 @@ Esse projeto foi desenvolvido para utilização com contêineres. (Docker).  O p
   
 O projeto quando iniciado pelo comando pelo docker-compose up cria os seguintes contêineres:
   - **FCG-Fase-2**             - Agrupador de todos os contêineres
-  - **fcg-users-api**          - USER.API com os endpoints para usuários em.NET 8.0
   - **fcg-users-db**           - Base de dados de cadastro de usuários PostgreSql
-  - **fcg-catalog-api**        - CATALOG.API com os endpoints para catalogo de jogos em.NET 8.0
+  - **fcg-users-api**          - USER.API com os endpoints para usuários em.NET 8.0
   - **fcg-catalog-db**         - Base de dados de catalogo de jogos em PostgreSql
+  - **fcg-catalog-api**        - CATALOG.API com os endpoints para catalogo de jogos em.NET 8.0
   - **fcg-payments-db**        - Base de dados de pagamento de jogos PostgreSql
-  - **fcg-notifications-api**  - NOTIFICATIONS.API com os endpoints para um sistema de simulação de e-mail de notificação em.NET 8.0
   - **fcg-payments-api**       - PAYMENTS.API com os endpoints para simulação de pagamento de jogos em.NET 8.0
+  - **fcg-notifications-api**  - NOTIFICATIONS.API com os endpoints para um sistema de simulação de e-mail de notificação em.NET 8.0
   - **fcg-pgadmin**            - PgAdmin
   - **fcg-rabbitmq**           - RabbitMQ
 
