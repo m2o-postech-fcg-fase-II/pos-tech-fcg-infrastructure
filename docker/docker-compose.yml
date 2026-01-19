@@ -80,7 +80,7 @@ services:
   # MESSAGE BROKER - RabbitMQ (Compartilhado)
   # ============================================================================  
   rabbitmq:
-    image: rabbitmq:4.2-management-alpine
+    image: rabbitmq:4.1.6-management-alpine
     container_name: fcg-rabbitmq
     restart: unless-stopped
     environment:
@@ -98,8 +98,8 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 15s
+      retries: 10
+      start_period: 60s
 
   # ============================================================================  
   # API - User API
