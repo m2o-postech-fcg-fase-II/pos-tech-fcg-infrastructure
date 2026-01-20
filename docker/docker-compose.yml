@@ -20,7 +20,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U fcg_user_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -45,7 +45,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U fcg_catalog_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,7 +61,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
-      POSTGRES_DB: ${DB_PAYMENT_NAME:-fcg_payment_db}
+      POSTGRES_DB: fcg_payment_db
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
       - "${DB_PAYMENT_PORT:-5434}:5432"
@@ -70,7 +70,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U fcg_payment_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -92,6 +92,7 @@ services:
       - "${RABBITMQ_MGMT_PORT:-15672}:15672"   # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_data:/var/log/rabbitmq
     networks:
       - fcg-network
     healthcheck:
