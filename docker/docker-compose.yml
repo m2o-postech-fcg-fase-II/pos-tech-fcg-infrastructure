@@ -80,7 +80,7 @@ services:
   # MESSAGE BROKER - RabbitMQ (Compartilhado)
   # ============================================================================  
   rabbitmq:
-    image: rabbitmq:4.2-management-alpine
+    image: rabbitmq:4.1.6-management-alpine
     container_name: fcg-rabbitmq
     restart: unless-stopped
     environment:
@@ -98,8 +98,8 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 15s
+      retries: 10
+      start_period: 60s
 
   # ============================================================================  
   # API - User API
@@ -112,7 +112,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8081
+      ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres-user;Database=fcg_user_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
@@ -125,7 +125,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${USERAPI_PORT:-8081}:8081"
+      - "${USERAPI_PORT:-8081}:8080"
     depends_on:
       postgres-user:
         condition: service_healthy
@@ -151,7 +151,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8083
+      ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres-catalog;Database=fcg_catalog_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
@@ -164,7 +164,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${CATALOGAPI_PORT:-8083}:8083"
+      - "${CATALOGAPI_PORT:-8083}:8080"
     depends_on:
       postgres-catalog:
         condition: service_healthy
@@ -190,7 +190,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8085
+      ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres-payment;Database=${DB_PAYMENT_NAME:-fcg_payment_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
@@ -203,7 +203,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${PAYMENTAPI_PORT:-8085}:8085"
+      - "${PAYMENTAPI_PORT:-8085}:8080"
     depends_on:
       postgres-payment:
         condition: service_healthy
@@ -229,7 +229,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ASPNETCORE_URLS: http://+:8087
+      ASPNETCORE_URLS: http://+:8080
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__Username: ${RABBITMQ_USER:-guest}
@@ -241,7 +241,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${NOTIFICATION_PORT:-8087}:8087"
+      - "${NOTIFICATION_PORT:-8087}:8080"
     depends_on:
       rabbitmq:
         condition: service_healthy

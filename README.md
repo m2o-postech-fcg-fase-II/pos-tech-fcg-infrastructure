@@ -86,7 +86,7 @@ A plataforma FCG é composta pelos seguintes microsserviços independentes:
 | Catalog.API | Catálogo de jogos e início do fluxo de compra |
 | Payments.API | Processamento de pagamentos (simulado) |
 | Notifications.API | Envio de notificações (simulado via logs) |
-| FCG.Generics (FCG.10NETT) | Nugget contendo entidades de reuso |
+| FCG.Generics (FCG.10NETT) | Nuget contendo entidades de reuso |
 
 A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando **mensageria** (RabbitMQ + MassTransit), seguindo os princípios de **arquitetura orientada a eventos**.
 
@@ -199,7 +199,10 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
    docker-compose up -d --build
    ```  
 
-### ⬇️⬇️⬇️ ainda não construido.
+
+## Kubernetes - Rodando o projeto com k8s
+  Para rodar o projeto com kubernetes, certifique-se que o cluster do kubernetes está ativo no Docker Desktop.<br>
+  Verifique no terminal se o kubernetes está ativo com os comandos abaixo:<br>
   
 6 **Para rodar o projeto com kubernetes**<br>
 Caso as imagens já existam, inicie o projeto clicando com o botão esquerdo do mouse sobre a pasta raiz "fiap-cloud-games-infrastructure" e selecione a opção "Open in Terminal" e rode o seguinte comando:<br>
@@ -208,3 +211,32 @@ Caso as imagens já existam, inicie o projeto clicando com o botão esquerdo do 
   ```
 Aguarde até que todos os pods estejam iniciados:<br>
 <img width="1247" height="489" alt="image" src="https://github.com/user-attachments/assets/6cedceff-8a71-4efc-b814-6d8cd010c5a8" />
+
+
+#remover os pods
+```bash
+  kubectl delete -f k8s/
+  ```
+
+## Acessando os serviços
+## Acesso aos Serviços (Desenvolvimento)
+Use `kubectl port-forward` para redirecionar portas locais:
+- Users API: `kubectl port-forward svc/users-api 8081:8081`
+- Catalog API: `kubectl port-forward svc/catalog-api 8083:8083`
+- Payments API: `kubectl port-forward svc/payments-api 8085:8085`
+- Notifications API: `kubectl port-forward svc/notifications-api 8087:8087`
+- PgAdmin: `kubectl port-forward svc/pgadmin 5050:80`
+- RabbitMQ Management: `kubectl port-forward svc/rabbitmq 15672:15672`
+
+Acesse via `http://localhost:<porta>`.
+
+| Serviço | URL Acesso | Descrição |
+|-------|------------------|------------------|
+| Users.API | http://localhost:{porta}/swagger/index.html | Endpoints para gestão de usuários |
+| Catalog.API | http://localhost:{porta}/swagger/index.html | Endpoints para catálogo de jogos |
+| Payments.API | http://localhost:{porta}/swagger/index.html | Endpoints para processamento de pagamentos (simulado) |
+| Notifications.API | http://localhost:{porta}/swagger/index.html | Endpoints para envio de notificações (simulado via logs) |
+| PgAdmin | http://localhost:5050 | Interface web para gerenciamento do PostgreSQL |
+| RabbitMQ | http://localhost:15672 | Interface web para gerenciamento do RabbitMQ |
+| RabbitMQ (User: guest / Pass: guest) |  |  |
+---
