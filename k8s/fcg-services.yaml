@@ -65,14 +65,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: catalog-api
+  name: catalogs-api
 spec:
   type: ClusterIP
   ports:
     - port: 8083
       targetPort: 8083
   selector:
-    app: catalog-api
+    app: catalogs-api
 ---
 apiVersion: v1
 kind: Service
