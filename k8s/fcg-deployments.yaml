@@ -250,24 +250,24 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 10
 ---
-# Catalog API
+# Catalogs API
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: catalog-api
+  name: catalogs-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: catalog-api
+      app: catalogs-api
   template:
     metadata:
       labels:
-        app: catalog-api
+        app: catalogs-api
     spec:
       containers:
-        - name: catalog-api
-          image: fcg-catalog-api:latest
+        - name: catalogs-api
+          image: fcg-catalogs-api:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 8083
@@ -512,6 +512,20 @@ spec:
       labels:
         app: pgadmin
     spec:
+      initContainers:
+        - name: init-pgadmin
+          image: busybox
+          command: ['sh', '-c', 'mkdir -p /var/lib/pgadmin && chown -R 5050:5050 /var/lib/pgadmin']
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: pgadmin-data
+              mountPath: /var/lib/pgadmin
+      securityContext:
+        runAsUser: 5050
+        runAsGroup: 5050
+        fsGroup: 5050
       containers:
         - name: pgadmin
           image: dpage/pgadmin4:latest
@@ -519,9 +533,15 @@ spec:
             - containerPort: 80
           env:
             - name: PGADMIN_DEFAULT_EMAIL
-              value: "admin@fcg.com"
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin-secret
+                  key: email
             - name: PGADMIN_DEFAULT_PASSWORD
-              value: "admin123"
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin-secret
+                  key: password
           volumeMounts:
             - name: pgadmin-data
               mountPath: /var/lib/pgadmin

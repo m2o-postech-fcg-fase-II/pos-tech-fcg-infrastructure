@@ -1,5 +1,5 @@
 # Docker compose para microsserviços com PostgreSQL e RabbitMQ
-name: FCG-Fase-2
+name: fcg-fase-2
 services:
   # ============================================================================  
   # DATABASE - PostgreSQL User
@@ -20,7 +20,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U fcg_user_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -45,7 +45,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U fcg_catalog_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,7 +61,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
-      POSTGRES_DB: ${DB_PAYMENT_NAME:-fcg_payment_db}
+      POSTGRES_DB: fcg_payment_db
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
       - "${DB_PAYMENT_PORT:-5434}:5432"
@@ -70,7 +70,7 @@ services:
     networks:
       - fcg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U fcg_payment_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -92,6 +92,7 @@ services:
       - "${RABBITMQ_MGMT_PORT:-15672}:15672"   # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_data:/var/log/rabbitmq
     networks:
       - fcg-network
     healthcheck:
@@ -105,6 +106,7 @@ services:
   # API - User API
   # ============================================================================  
   userapi:
+    image: fcg-users-api:${IMAGE_VERSION:-latest}  # Adicionado para consistência
     build:
       context: ../../pos-tech-fcg-user-api/src
       dockerfile: FCG.UserAPI.Api/Dockerfile
@@ -141,13 +143,14 @@ services:
       start_period: 20s
 
   # ============================================================================  
-  # API - Catalog API
+  # API - Catalogs API
   # ============================================================================  
-  catalogapi:
+  catalogsapi:
+    image: fcg-catalogs-api:${IMAGE_VERSION:-latest}  # Adicionado
     build:
       context: ../../pos-tech-fcg-catalog-api/src
       dockerfile: FCG.Catalog.API/Dockerfile
-    container_name: fcg-catalog-api
+    container_name: fcg-catalogs-api
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
@@ -164,7 +167,7 @@ services:
     secrets:
       - jwt_secret
     ports:
-      - "${CATALOGAPI_PORT:-8083}:8080"
+      - "${CATALOGSAPI_PORT:-8083}:8080"
     depends_on:
       postgres-catalog:
         condition: service_healthy
@@ -183,6 +186,7 @@ services:
   # API - Payment API
   # ============================================================================  
   paymentapi:
+    image: fcg-payments-api:${IMAGE_VERSION:-latest}  # Adicionado
     build:
       context: ../../pos-tech-fcg-payment-api/src
       dockerfile: FCG.Payment.API/Dockerfile
@@ -219,9 +223,10 @@ services:
       start_period: 20s
 
   # ============================================================================  
-  # API - Payment API
+  # API - Notification API
   # ============================================================================  
   notificationapi:
+    image: fcg-notification-api:${IMAGE_VERSION:-latest}  # Adicionado
     build:
       context: ../../pos-tech-fcg-notification-api/src
       dockerfile: FCG.Notification.API/Dockerfile
@@ -308,4 +313,4 @@ networks:
 # ============================================================================  
 secrets:
   jwt_secret:
-    file: ./secrets/jwt_secret
+    file: secrets/jwt_secret

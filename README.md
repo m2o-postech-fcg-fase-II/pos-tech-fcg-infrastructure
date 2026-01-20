@@ -1,7 +1,6 @@
 ## FIAP - Arquitetura em Sistemas .NET
 - Tech Challenge - FIAP Cloud Games - Fase II - Grupo 57
     - Marcelo Mendes de Oliveira - __RM: 367563__
-    - Eduardo Martins Oliveira - __RM: 368703__
 ---
 ### Sobre:
 Este repositório é parte integrante da proposta da **FIAP - Pós-Tech em Arquitetura de Sistemas .NET _com foco nos princípios de Domain-Driven Design  (DDD)._ - Fase II**.
@@ -201,28 +200,33 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
 
 
 ## Kubernetes - Rodando o projeto com k8s
-  Para rodar o projeto com kubernetes, certifique-se que o cluster do kubernetes está ativo no Docker Desktop.<br>
-  Verifique no terminal se o kubernetes está ativo com os comandos abaixo:<br>
+  - Para rodar o projeto com kubernetes
+    - Verifique no Docker Desktop se o Kubernetes está ativo:
+    - verifique se as imagens dos microsserviços já foram criadas via docker-compose
+      - se não, rode o comando abaixo na pasta do docker:
+      ```bash 
+         docker-compose build
+      ```
   
 6 **Para rodar o projeto com kubernetes**<br>
-Caso as imagens já existam, inicie o projeto clicando com o botão esquerdo do mouse sobre a pasta raiz "fiap-cloud-games-infrastructure" e selecione a opção "Open in Terminal" e rode o seguinte comando:<br>
-```bash
-  kubectl apply -f k8s/
-  ```
-Aguarde até que todos os pods estejam iniciados:<br>
-<img width="1247" height="489" alt="image" src="https://github.com/user-attachments/assets/6cedceff-8a71-4efc-b814-6d8cd010c5a8" />
+  - Caso as imagens já existam, caso contrário retorne ao passo anterior
+  - inicie o projeto clicando com o botão esquerdo do mouse sobre a pasta raiz "fiap-cloud-games-infrastructure" e selecione a opção "Open in Terminal" e rode o seguinte comando:<br>
+    ```bash
+       kubectl apply -f k8s/
+    ```
+    Aguarde até que todos os pods estejam iniciados:<br>
+    <img width="1247" height="489" alt="image" src="https://github.com/user-attachments/assets/6cedceff-8a71-4efc-b814-6d8cd010c5a8" />
 
-
-#remover os pods
-```bash
-  kubectl delete -f k8s/
-  ```
+  - remover os pods
+    ```bash
+    kubectl delete -f k8s/
+    ```
 
 ## Acessando os serviços
 ## Acesso aos Serviços (Desenvolvimento)
 Use `kubectl port-forward` para redirecionar portas locais:
 - Users API: `kubectl port-forward svc/users-api 8081:8081`
-- Catalog API: `kubectl port-forward svc/catalog-api 8083:8083`
+- Catalogs API: `kubectl port-forward svc/catalogs-api 8083:8083`
 - Payments API: `kubectl port-forward svc/payments-api 8085:8085`
 - Notifications API: `kubectl port-forward svc/notifications-api 8087:8087`
 - PgAdmin: `kubectl port-forward svc/pgadmin 5050:80`
@@ -230,13 +234,11 @@ Use `kubectl port-forward` para redirecionar portas locais:
 
 Acesse via `http://localhost:<porta>`.
 
-| Serviço | URL Acesso | Descrição |
-|-------|------------------|------------------|
-| Users.API | http://localhost:{porta}/swagger/index.html | Endpoints para gestão de usuários |
-| Catalog.API | http://localhost:{porta}/swagger/index.html | Endpoints para catálogo de jogos |
-| Payments.API | http://localhost:{porta}/swagger/index.html | Endpoints para processamento de pagamentos (simulado) |
-| Notifications.API | http://localhost:{porta}/swagger/index.html | Endpoints para envio de notificações (simulado via logs) |
-| PgAdmin | http://localhost:5050 | Interface web para gerenciamento do PostgreSQL |
-| RabbitMQ | http://localhost:15672 | Interface web para gerenciamento do RabbitMQ |
-| RabbitMQ (User: guest / Pass: guest) |  |  |
----
+| Serviço           | URL Acesso                                  | Descrição        |
+|-------------------|---------------------------------------------|------------------|
+| Users.API         | http://localhost:8081/swagger/index.html    | Endpoints para gestão de usuários |
+| Catalogs.API      | http://localhost:8083/swagger/index.html    | Endpoints para catálogo de jogos |
+| Payments.API      | http://localhost:8085/swagger/index.html    | Endpoints para processamento de pagamentos (simulado) |
+| Notifications.API | http://localhost:8087/swagger/index.html    | Endpoints para envio de notificações (simulado via logs) |
+| PgAdmin           | http://localhost:5050                       | Interface web para gerenciamento do PostgreSQL (User: admin@fcg.com / Pass: admin123) |
+| RabbitMQ          | http://localhost:15672                      | Interface web para gerenciamento do RabbitMQ (User: guest / Pass: guest) |
