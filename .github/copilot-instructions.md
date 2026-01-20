@@ -35,6 +35,9 @@ Criar pasta `/k8s` contendo:
 - Deployment do RabbitMQ/Kafka
 - Namespace dedicado (opcional)
 
+### Nomenclatura de Pods
+Quando o usuário especificar "era apenas o nome do pod", as alterações devem se limitar apenas ao nome do deployment/pod no Kubernetes, mantendo os nomes do banco de dados e outros componentes como estavam (singular para catalog).
+
 ---
 
 ## Boas Práticas
