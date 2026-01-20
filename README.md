@@ -217,3 +217,26 @@ Aguarde até que todos os pods estejam iniciados:<br>
 ```bash
   kubectl delete -f k8s/
   ```
+
+## Acessando os serviços
+## Acesso aos Serviços (Desenvolvimento)
+Use `kubectl port-forward` para redirecionar portas locais:
+- Users API: `kubectl port-forward svc/users-api 8081:8081`
+- Catalog API: `kubectl port-forward svc/catalog-api 8083:8083`
+- Payments API: `kubectl port-forward svc/payments-api 8085:8085`
+- Notifications API: `kubectl port-forward svc/notifications-api 8087:8087`
+- PgAdmin: `kubectl port-forward svc/pgadmin 5050:80`
+- RabbitMQ Management: `kubectl port-forward svc/rabbitmq 15672:15672`
+
+Acesse via `http://localhost:<porta>`.
+
+| Serviço | URL Acesso | Descrição |
+|-------|------------------|------------------|
+| Users.API | http://localhost:{porta}/swagger/index.html | Endpoints para gestão de usuários |
+| Catalog.API | http://localhost:{porta}/swagger/index.html | Endpoints para catálogo de jogos |
+| Payments.API | http://localhost:{porta}/swagger/index.html | Endpoints para processamento de pagamentos (simulado) |
+| Notifications.API | http://localhost:{porta}/swagger/index.html | Endpoints para envio de notificações (simulado via logs) |
+| PgAdmin | http://localhost:5050 | Interface web para gerenciamento do PostgreSQL |
+| RabbitMQ | http://localhost:15672 | Interface web para gerenciamento do RabbitMQ |
+| RabbitMQ (User: guest / Pass: guest) |  |  |
+---

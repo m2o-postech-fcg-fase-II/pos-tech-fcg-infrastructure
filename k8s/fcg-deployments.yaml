@@ -149,7 +149,7 @@ spec:
     spec:
       containers:
         - name: rabbitmq
-          image: rabbitmq:4.2-management-alpine
+          image: rabbitmq:4.1.6-management-alpine
           ports:
             - containerPort: 5672
             - containerPort: 15672
@@ -184,7 +184,7 @@ spec:
       containers:
         - name: users-api
           image: fcg-users-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           ports:
             - containerPort: 8081
           env:
@@ -268,7 +268,7 @@ spec:
       containers:
         - name: catalog-api
           image: fcg-catalog-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           ports:
             - containerPort: 8083
           env:
@@ -297,6 +297,31 @@ spec:
                 configMapKeyRef:
                   name: fcg-config
                   key: RABBITMQ_PORT
+            - name: RabbitMq__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_USERNAME
+            - name: RabbitMq__Password
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PASSWORD
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_AUDIENCE
+            - name: Jwt__ExpiryMinutes
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_EXPIRY_MINUTES
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -327,7 +352,7 @@ spec:
       containers:
         - name: payments-api
           image: fcg-payments-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           ports:
             - containerPort: 8085
           env:
@@ -351,6 +376,36 @@ spec:
                 configMapKeyRef:
                   name: fcg-config
                   key: RABBITMQ_HOST
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PORT
+            - name: RabbitMq__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_USERNAME
+            - name: RabbitMq__Password
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PASSWORD
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_AUDIENCE
+            - name: Jwt__ExpiryMinutes
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_EXPIRY_MINUTES
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -381,7 +436,7 @@ spec:
       containers:
         - name: notifications-api
           image: fcg-notification-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           ports:
             - containerPort: 8087
           env:
@@ -400,6 +455,36 @@ spec:
                 configMapKeyRef:
                   name: fcg-config
                   key: RABBITMQ_HOST
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PORT
+            - name: RabbitMq__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_USERNAME
+            - name: RabbitMq__Password
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: RABBITMQ_PASSWORD
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_AUDIENCE
+            - name: Jwt__ExpiryMinutes
+              valueFrom:
+                configMapKeyRef:
+                  name: fcg-config
+                  key: JWT_EXPIRY_MINUTES
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
