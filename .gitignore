@@ -4,3 +4,5 @@
 
 /.vs/pos-tech-fcg-infrastructure/CopilotIndices/18.0.988.22099
 /.vs
+.[Ee]nv
+/**/.env

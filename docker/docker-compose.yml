@@ -6,12 +6,12 @@ services:
   # ============================================================================  
   postgres-user:
     image: postgres:16-alpine
-    container_name: fcg-user-db
+    container_name: ${DB_USER_DBNAME:-fcg_user_db}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
-      POSTGRES_DB: fcg_user_db
+      POSTGRES_DB: ${DB_USER_DBNAME:-fcg_user_db}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
       - "${DB_USER_PORT:-5432}:5432"
@@ -31,12 +31,12 @@ services:
   # ============================================================================  
   postgres-catalog:
     image: postgres:16-alpine
-    container_name: fcg-catalog-db
+    container_name: ${DB_CATALOG_DBNAME:-fcg_catalog_db}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
-      POSTGRES_DB: fcg_catalog_db
+      POSTGRES_DB: ${DB_CATALOG_DBNAME:-fcg_catalog_db}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
       - "${DB_CATALOG_PORT:-5433}:5432"
@@ -56,12 +56,12 @@ services:
   # ============================================================================  
   postgres-payment:
     image: postgres:16-alpine
-    container_name: fcg-payment-db
+    container_name: ${DB_PAYMENT_DBNAME:-fcg_payment_db}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
-      POSTGRES_DB: ${DB_PAYMENT_NAME:-fcg_payment_db}
+      POSTGRES_DB: ${DB_PAYMENT_DBNAME:-fcg_payment_db}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
       - "${DB_PAYMENT_PORT:-5434}:5432"
@@ -113,7 +113,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8081
-      ConnectionStrings__DefaultConnection: Host=postgres-user;Database=fcg_user_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
+      ConnectionStrings__DefaultConnection: Host=${DB_USER_HOST:-postgres-user};Port=${DB_POSTGRES_PORT:-5432};Database=${DB_USER_DBNAME:-fcg_user_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123}
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__Username: ${RABBITMQ_USER:-guest}
@@ -152,7 +152,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8083
-      ConnectionStrings__DefaultConnection: Host=postgres-catalog;Database=fcg_catalog_db;Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
+      ConnectionStrings__DefaultConnection: Host=${DB_CATALOG_HOST:-postgres-catalog};Port=${DB_POSTGRES_PORT:-5432};Database=${DB_CATALOG_DBNAME:-fcg_catalog_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123}
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__Username: ${RABBITMQ_USER:-guest}
@@ -191,7 +191,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8085
-      ConnectionStrings__DefaultConnection: Host=postgres-payment;Database=${DB_PAYMENT_NAME:-fcg_payment_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123};
+      ConnectionStrings__DefaultConnection: Host=${DB_PAYMENT_HOST:-postgres-payment};Port=${DB_POSTGRES_PORT:-5432};Database=${DB_PAYMENT_DBNAME:-fcg_payment_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres123}
       RabbitMq__Host: rabbitmq
       RabbitMq__Port: 5672
       RabbitMq__Username: ${RABBITMQ_USER:-guest}
@@ -219,7 +219,7 @@ services:
       start_period: 20s
 
   # ============================================================================  
-  # API - Payment API
+  # API - Notification API
   # ============================================================================  
   notificationapi:
     build:
