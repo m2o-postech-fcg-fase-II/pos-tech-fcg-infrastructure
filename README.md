@@ -1,7 +1,6 @@
 ## FIAP - Arquitetura em Sistemas .NET
 - Tech Challenge - FIAP Cloud Games - Fase II - Grupo 57
     - Marcelo Mendes de Oliveira - __RM: 367563__
-    - Eduardo Martins Oliveira - __RM: 368703__
 ---
 ### Sobre:
 Este repositório é parte integrante da proposta da **FIAP - Pós-Tech em Arquitetura de Sistemas .NET _com foco nos princípios de Domain-Driven Design  (DDD)._ - Fase II**.
@@ -43,7 +42,8 @@ https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-payment-api
 > Nuget: [FCG.10NETT](https://www.nuget.org/packages/FCG.10NETT)
 
 
-As instruções para rodar o projeto contidas no item Setup deste documento, referem-se somente ao projeto inteiro, contendo todos os microsserviços.  Caso queira rodar cada microsserviço individualmente, as instruções estão no repositórios de cada microsserviço.
+As instruções para rodar o projeto contidas no item Setup deste documento, referem-se somente ao projeto inteiro, contendo todos os microsserviços.  
+Caso queira rodar cada microsserviço individualmente, as instruções estão no repositórios de cada microsserviço.
 
 ## Docker
 Esse projeto foi desenvolvido para utilização com contêineres. (Docker).  O projeto de orquestração considera o ambiente de Produção. As imagens oficiais utilizadas são :<br>
@@ -55,13 +55,13 @@ Esse projeto foi desenvolvido para utilização com contêineres. (Docker).  O p
   
 O projeto quando iniciado pelo comando pelo docker-compose up cria os seguintes contêineres:
   - **FCG-Fase-2**             - Agrupador de todos os contêineres
-  - **fcg-users-api**          - USER.API com os endpoints para usuários em.NET 8.0
   - **fcg-users-db**           - Base de dados de cadastro de usuários PostgreSql
-  - **fcg-catalog-api**        - CATALOG.API com os endpoints para catalogo de jogos em.NET 8.0
+  - **fcg-users-api**          - USER.API com os endpoints para usuários em.NET 8.0
   - **fcg-catalog-db**         - Base de dados de catalogo de jogos em PostgreSql
+  - **fcg-catalog-api**        - CATALOG.API com os endpoints para catalogo de jogos em.NET 8.0
   - **fcg-payments-db**        - Base de dados de pagamento de jogos PostgreSql
-  - **fcg-notifications-api**  - NOTIFICATIONS.API com os endpoints para um sistema de simulação de e-mail de notificação em.NET 8.0
   - **fcg-payments-api**       - PAYMENTS.API com os endpoints para simulação de pagamento de jogos em.NET 8.0
+  - **fcg-notifications-api**  - NOTIFICATIONS.API com os endpoints para um sistema de simulação de e-mail de notificação em.NET 8.0
   - **fcg-pgadmin**            - PgAdmin
   - **fcg-rabbitmq**           - RabbitMQ
 
@@ -85,7 +85,7 @@ A plataforma FCG é composta pelos seguintes microsserviços independentes:
 | Catalog.API | Catálogo de jogos e início do fluxo de compra |
 | Payments.API | Processamento de pagamentos (simulado) |
 | Notifications.API | Envio de notificações (simulado via logs) |
-| FCG.Generics (FCG.10NETT) | Nugget contendo entidades de reuso |
+| FCG.Generics (FCG.10NETT) | Nuget contendo entidades de reuso |
 
 A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando **mensageria** (RabbitMQ + MassTransit), seguindo os princípios de **arquitetura orientada a eventos**.
 
@@ -113,7 +113,11 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
 1. Clone este repositório, bem como os demais repositórios dos microsserviços. 
 2. Mantenha os nomes originais dos repositórios ao cloná-los (caso mude é necessário rever o docker-compose).
 3. Branch é o Develop para todos. 
-4. Mantenha a estrutura de pastas conforme o exemplo abaixo:
+4.  Configurar `.env` e `secrets`
+    5.1. Acesse a pasta `Helps` e siga as instruções dos arquivos
+        - `secrets.help.md`
+        - `env.example` 
+5. Mantenha a estrutura de pastas conforme o exemplo abaixo:
 
 ```repo/<br>
 ├── fiap-cloud-games-infrastructure/
@@ -135,33 +139,106 @@ A comunicação entre os serviços ocorre de forma **assíncrona**, utilizando *
     └── ```https://github.com/m2o-postech-fcg-fase-II/pos-tech-fcg-generics```
 ```
 
-#### Edição Pendente:
+5.1 Visão do diretório dos repositórios:
 
-<img width="530" height="190" alt="image" src="https://github.com/user-attachments/assets/5bfaf29f-58a0-4334-a5f4-a7ac8c326ea1" />
+<img width="627" 
+    height="215" 
+    alt="visão do diretório dos repositórios" 
+    title="Visão do diretório dos repositórios dos microsserviços" 
+    aria-label="imagem da visão do diretório dos repositórios dos microsserviços" 
+    src="https://github.com/user-attachments/assets/766b2acf-aca0-4353-a5ee-099c11ff10cd" />
+    
+5.2 Executar via Docker-Compose
+5.2.1 Acesse o diretório `pos-tech-fcg-infrastructure`.<br>
+5.2.2 Clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal"<br>
 
-2. Acesse a pasta contendo este repositório de orquestração.<br>
-2.1 **Para rodar o projeto com docker-compose**<br>
-   2.1.1 Clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal"<br>
-   <img width="328" height="415" alt="image" src="https://github.com/user-attachments/assets/ed6fa237-4a9e-413d-a21c-57a8d4d58941" /><br><br>
+   <img width="809" 
+       height="532" 
+       alt="menu de contexto" 
+       title="menu de contexto do click direito do mouse"
+       aria-label="menu de contexto do click direito do mouse"       
+       src="https://github.com/user-attachments/assets/d95c5bbf-29cd-43a3-8fb4-87ce87bf5f22" />
 
-  2.1.2 Digite no powershell aberto o comando:
-  ```bash
-  docker-compose up --build
-  ```
-  2.1.3 Aguarde até que os conteineres tenham iniciado. O container fcg-ready não permanece iniciado.  Ele é utilizado apenas para prover uma mensagem indicando que o ambiente está pronto no console.<br>
-  <img width="1269" height="633" alt="image" src="https://github.com/user-attachments/assets/b19fb09c-6513-42d7-83de-389b1ad93cce" /><br>
-  <img width="1581" height="214" alt="image" src="https://github.com/user-attachments/assets/a37f1173-a656-4581-b570-939ac99d3ac2" /><br>
 
+5.2.3 Na janela do terminal digite o comando:
+
+5.2.3.1: Monitorar no próprio console.
+    Digite no console o seguinte comando:
+    ```bash
+    docker-compose up --build
+    ```
+
+   Se tudo estiver correto irá mostrar imagems semelhantes a estas: 
+   
+   <img width="1393" 
+       height="498" 
+       title="Imagem do docker compilando e iniciando os containers dos microsserviços"
+       aria-label="Imagem do docker desktop com os containers dos microsserviços"
+       alt="Docker Desktop com os microserviços iniciados" 
+       src="https://github.com/user-attachments/assets/3d98649e-562e-4b82-be4c-c74151b09787" />
+
+   
+   <img width="1422" 
+       height="922" 
+       title="Imagem do teminal executando o docker exibindo os logs dos microsserviços"
+       aria-label="Imagem do teminal executando o docker exibindo os logs dos microsserviços"
+       alt="Imagem do teminal executando o docker exibindo os logs dos microsserviços" 
+       src="https://github.com/user-attachments/assets/0fdc04e4-043a-402a-a647-a7450640bf1d" />       
+   
+5.2.3.2 - Visão - Docker Desktop
+    <img width="2165" 
+        height="713" 
+        title="Imagem do docker descktop com os containers dos microsserviços"
+        aria-label="Imagem do docker desktop com os containers dos microsserviços"
+        alt="Docker Desktop com os microserviços iniciados" 
+        src="https://github.com/user-attachments/assets/176cbcde-c0e8-43e8-ba64-388464c0ede2" />
+
+5.2.3.3 - Não mostrar log no console:
+   ```bash
+   docker-compose up -d --build
+   ```  
+
+
+## Kubernetes - Rodando o projeto com k8s
+  - Para rodar o projeto com kubernetes
+    - Verifique no Docker Desktop se o Kubernetes está ativo:
+    - verifique se as imagens dos microsserviços já foram criadas via docker-compose
+      - se não, rode o comando abaixo na pasta do docker:
+      ```bash 
+         docker-compose build
+      ```
   
-2.2 **Para rodar o projeto com kubernetes**<br>
-2.2.1  Procure pelas imagens docker v2 no docker desktop.  Caso as imagens não existam, clique com o botão esquerdo do mouse sobre a pasta "docker" e selecione a opção "Open in Terminal" e rode o seguinte comando para gerá-las:<br>
-```bash
-  docker-compose build
-  ```
-<img width="1296" height="573" alt="image" src="https://github.com/user-attachments/assets/a5abf4a5-ebb2-4e48-b952-dbc9438bef2b" /><br>
-Caso as imagens já existam, inicie o projeto clicando com o botão esquerdo do mouse sobre a pasta raiz "fiap-cloud-games-infrastructure" e selecione a opção "Open in Terminal" e rode o seguinte comando:<br>
-```bash
-  kubectl apply -f k8s/
-  ```
-Aguarde até que todos os pods estejam iniciados:<br>
-<img width="1247" height="489" alt="image" src="https://github.com/user-attachments/assets/6cedceff-8a71-4efc-b814-6d8cd010c5a8" />
+6 **Para rodar o projeto com kubernetes**<br>
+  - Caso as imagens já existam, caso contrário retorne ao passo anterior
+  - inicie o projeto clicando com o botão esquerdo do mouse sobre a pasta raiz "fiap-cloud-games-infrastructure" e selecione a opção "Open in Terminal" e rode o seguinte comando:<br>
+    ```bash
+       kubectl apply -f k8s/
+    ```
+    Aguarde até que todos os pods estejam iniciados:<br>
+    <img width="1247" height="489" alt="image" src="https://github.com/user-attachments/assets/6cedceff-8a71-4efc-b814-6d8cd010c5a8" />
+
+  - remover os pods
+    ```bash
+    kubectl delete -f k8s/
+    ```
+
+## Acessando os serviços
+## Acesso aos Serviços (Desenvolvimento)
+Use `kubectl port-forward` para redirecionar portas locais:
+- Users API: `kubectl port-forward svc/users-api 8081:8081`
+- Catalogs API: `kubectl port-forward svc/catalogs-api 8083:8083`
+- Payments API: `kubectl port-forward svc/payments-api 8085:8085`
+- Notifications API: `kubectl port-forward svc/notifications-api 8087:8087`
+- PgAdmin: `kubectl port-forward svc/pgadmin 5050:80`
+- RabbitMQ Management: `kubectl port-forward svc/rabbitmq 15672:15672`
+
+Acesse via `http://localhost:<porta>`.
+
+| Serviço           | URL Acesso                                  | Descrição        |
+|-------------------|---------------------------------------------|------------------|
+| Users.API         | http://localhost:8081/swagger/index.html    | Endpoints para gestão de usuários |
+| Catalogs.API      | http://localhost:8083/swagger/index.html    | Endpoints para catálogo de jogos |
+| Payments.API      | http://localhost:8085/swagger/index.html    | Endpoints para processamento de pagamentos (simulado) |
+| Notifications.API | http://localhost:8087/swagger/index.html    | Endpoints para envio de notificações (simulado via logs) |
+| PgAdmin           | http://localhost:5050                       | Interface web para gerenciamento do PostgreSQL (User: admin@fcg.com / Pass: admin123) |
+| RabbitMQ          | http://localhost:15672                      | Interface web para gerenciamento do RabbitMQ (User: guest / Pass: guest) |
